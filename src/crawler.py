@@ -92,7 +92,7 @@ class Crawler:
             self._last_fetch_end = time.monotonic()
 
     # Extract the links from the HTML
-    def extract_links(self, page_url: str, html: str) -> list[str]:
+    def _extract_links(self, page_url: str, html: str) -> list[str]:
         soup = BeautifulSoup(html, "html.parser")
         out: list[str] = []
         for a in soup.find_all("a", href=True):
@@ -133,6 +133,6 @@ class Crawler:
             if max_pages is not None and count >= max_pages:
                 break
 
-            for link in self.extract_links(url, html):
+            for link in self._extract_links(url, html):
                 if link not in seen:
                     queue.append(link)
