@@ -82,7 +82,7 @@ class Indexer:
 
     @classmethod
     def load(cls, path: str | Path) -> Indexer:
-        """Load an index previously written with :meth:`save`."""
+        """Load an index previously written with save method."""
         p = Path(path)
         if not p.is_file():
             raise FileNotFoundError(str(p))
