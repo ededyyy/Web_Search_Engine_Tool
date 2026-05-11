@@ -149,7 +149,7 @@ def test_crawl_yields_pages():
     """
 
     with patch.object(crawler, "_fetch", return_value=fake_html):
-        with patch.object(crawler, "_extract_links", return_value=[]):
+        with patch.object(crawler, "extract_links", return_value=[]):
 
             pages = list(crawler.crawl(max_pages=1))  # Only crawl one page for the test
 
