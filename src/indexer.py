@@ -5,7 +5,9 @@ Search terms are normalised to lower case.
 
 from __future__ import annotations
 
+import json
 import re
+from pathlib import Path
 from typing import Any
 
 from .crawler import Crawler
@@ -72,3 +74,21 @@ class Indexer:
             term: {url: _copy_posting(stats) for url, stats in by_url.items()}
             for term, by_url in self._index.items()
         }
+
+    def save(self, path: str | Path) -> None:
+        """Write the full inverted index to a single JSON file."""
+        p = Path(path)
+        p.write_text(json.dumps(self._index, indent=2), encoding="utf-8")
+
+    @classmethod
+    def load(cls, path: str | Path) -> Indexer:
+        """Load an index previously written with :meth:`save`."""
+        p = Path(path)
+        if not p.is_file():
+            raise FileNotFoundError(str(p))
+        data: dict[str, dict[str, dict[str, Any]]] = json.loads(
+            p.read_text(encoding="utf-8")
+        )
+        obj = cls()
+        obj._index = data
+        return obj

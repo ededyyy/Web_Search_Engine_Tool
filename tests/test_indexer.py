@@ -1,3 +1,4 @@
+import pytest
 from unittest.mock import Mock
 
 from src.indexer import Indexer, tokenize
@@ -132,3 +133,20 @@ def test_crawl_and_index_passes_max_pages_to_crawl():
     indexer.crawl_and_index(crawler, max_pages=5)
 
     crawler.crawl.assert_called_once_with(max_pages=5)
+
+
+# Save and load roundtrip
+def test_save_load_roundtrip(tmp_path):
+    indexer = Indexer()
+    indexer.add_document("https://x/", "a b a")
+    path = tmp_path / "idx.json"
+    indexer.save(path)
+    loaded = Indexer.load(path)
+    assert loaded.lookup("a") == indexer.lookup("a")
+    assert loaded.lookup("b") == indexer.lookup("b")
+
+# Load missing file raises FileNotFoundError
+def test_load_missing_file_raises(tmp_path):
+    missing = tmp_path / "missing.json"
+    with pytest.raises(FileNotFoundError):
+        Indexer.load(missing)
