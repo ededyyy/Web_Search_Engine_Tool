@@ -26,7 +26,7 @@ DEFAULT_HEADERS = {
 }
 
 
-def _normalize_url(base: str, href: str) -> str | None:
+def normalize_url(base: str, href: str) -> str | None:
     """Join and defragment href; return None if not a crawlable http(s) URL."""
     if not href or href.startswith(("#", "javascript:", "mailto:")):  # Ignore anchors, javascript, and mailto links
         return None
@@ -38,11 +38,11 @@ def _normalize_url(base: str, href: str) -> str | None:
     return clean
 
 # Check if the URL is on the same site
-def _same_site(url: str, allowed_netloc: str) -> bool:
+def same_site(url: str, allowed_netloc: str) -> bool:
     return urlparse(url).netloc.lower() == allowed_netloc.lower()
 
 
-def _visible_text(html: str) -> str:
+def visible_text(html: str) -> str:
     """Strip tags and script/style; collapse whitespace for downstream tokenisation."""
     soup = BeautifulSoup(html, "html.parser")
     for tag in soup(["script", "style", "noscript"]):  # Remove script, style, and noscript tags
@@ -92,12 +92,12 @@ class Crawler:
             self._last_fetch_end = time.monotonic()
 
     # Extract the links from the HTML
-    def _extract_links(self, page_url: str, html: str) -> list[str]:
+    def extract_links(self, page_url: str, html: str) -> list[str]:
         soup = BeautifulSoup(html, "html.parser")
         out: list[str] = []
         for a in soup.find_all("a", href=True):
-            norm = _normalize_url(page_url, a["href"])
-            if norm and _same_site(norm, self._allowed_netloc):
+            norm = normalize_url(page_url, a["href"])
+            if norm and same_site(norm, self._allowed_netloc):
                 out.append(norm)
         return out
 
@@ -127,12 +127,12 @@ class Crawler:
                 logger.warning("Skip %s: %s", url, exc)
                 continue
 
-            text = _visible_text(html)
+            text = visible_text(html)
             yield url, text
             count += 1
             if max_pages is not None and count >= max_pages:
                 break
 
-            for link in self._extract_links(url, html):
+            for link in self.extract_links(url, html):
                 if link not in seen:
                     queue.append(link)
