@@ -37,13 +37,12 @@ def run_shell(index_path: Path | None = None) -> None:
 
         if cmd == "help" or cmd == "?":  # Show help message
             print(
-                "Commands: build [max_pages] | load | print <word> | "
+                "Commands: build [max_pages(optional)] | load | print <word> | "
                 "find <words...> | quit"
             )
             continue
 
         if cmd == "build":
-            # Optional: build 10  → at most 10 pages; build  → crawl until queue empty
             max_pages: int | None = None
             if rest:
                 try:
@@ -54,11 +53,10 @@ def run_shell(index_path: Path | None = None) -> None:
                 if max_pages < 1:
                     print("max_pages must be at least 1.")
                     continue
-                print(f"Crawling and indexing at most {max_pages} page(s)...")
+                print(f"Crawling and indexing (at most {max_pages} page(s))...")
             else:
                 print(
-                    "Crawling and indexing (no page limit; may take a long time "
-                    "due to politeness delay)..."
+                    "Crawling and indexing..."
                 )
             idx = Indexer()
             pages = idx.crawl_and_index(Crawler(), max_pages=max_pages)
